@@ -37,6 +37,7 @@ type Options struct {
 	Host           goflags.StringSlice // Host is the single host or comma-separated list of hosts to find ports for
 	HostsFile      string              // HostsFile is the file containing list of hosts to find port for
 	Output         string              // Output is the file to write found ports to.
+	JsonOutput     string              // JsonOutput is the file to write found ports to in JSON format. Allows human-readable output to screen.
 	Ports          string              // Ports is the ports to use for enumeration
 	PortsFile      string              // PortsFile is the file containing ports to use for enumeration
 	ExcludePorts   string              // ExcludePorts is the list of ports to exclude from enumeration
@@ -135,6 +136,7 @@ func ParseOptions() *Options {
 
 	flagSet.CreateGroup("output", "Output",
 		flagSet.StringVarP(&options.Output, "output", "o", "", "file to write output to (optional)"),
+		flagSet.StringVarP(&options.JsonOutput, "json-output", "jo", "", "file to write output to (optional)"),
 		flagSet.BoolVar(&options.JSON, "json", false, "write output in JSON lines format"),
 		flagSet.BoolVar(&options.CSV, "csv", false, "write output in csv format"),
 	)

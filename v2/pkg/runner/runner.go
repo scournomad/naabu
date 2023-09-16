@@ -740,9 +740,11 @@ func (r *Runner) SetInterface(interfaceName string) error {
 
 func (r *Runner) handleOutput(scanResults *result.Result) {
 	var (
-		file   *os.File
-		err    error
-		output string
+		file       *os.File
+		jsonFile   *os.File
+		err        error
+		output     string
+		jsonOutput string
 	)
 
 	// In case the user has given an output file, write all the found
@@ -766,6 +768,29 @@ func (r *Runner) handleOutput(scanResults *result.Result) {
 			return
 		}
 		defer file.Close()
+	}
+
+	// In case the user has given an JSON output file, write all the found
+	// ports to the output file.
+	if r.options.JsonOutput != "" {
+		jsonOutput = r.options.JsonOutput
+
+		// create path if not existing
+		// outputFolder := filepath.Dir(output)
+		// if fileutil.FolderExists(outputFolder) {
+		// 	mkdirErr := os.MkdirAll(outputFolder, 0700)
+		// 	if mkdirErr != nil {
+		// 		gologger.Error().Msgf("Could not create output folder %s: %s\n", outputFolder, mkdirErr)
+		// 		return
+		// 	}
+		// }
+
+		jsonFile, err = os.Create(jsonOutput)
+		if err != nil {
+			gologger.Error().Msgf("Could not create file %s: %s\n", jsonOutput, err)
+			return
+		}
+		defer jsonFile.Close()
 	}
 	csvFileHeaderEnabled := true
 
@@ -855,6 +880,10 @@ func (r *Runner) handleOutput(scanResults *result.Result) {
 					if err != nil {
 						gologger.Error().Msgf("Could not write results to file %s for %s: %s\n", output, host, err)
 					}
+				}
+
+				if jsonFile != nil {
+					err = WriteJSONOutput(host, hostResult.IP, hostResult.Ports, r.options.OutputCDN, isCDNIP, cdnName, jsonFile)
 				}
 
 				if r.options.OnResult != nil {
